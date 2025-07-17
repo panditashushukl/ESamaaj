@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Learning MERN Backend",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/panditashushukl/LearningMERN.git#main"
+  },
+  "keywords": [
+    "learning",
+    "backend",
+    "MERN"
+  ],
+  "author": "ShuklaJi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/panditashushukl/LearningMERN/issues"
+  },
+  "homepage": "https://github.com/panditashushukl/LearningMERN/tree/main#readme",
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0"
+  }
+}
