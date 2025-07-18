@@ -6,7 +6,7 @@
 
 [Setting Project](#setting-project)
 
-[About Express](#about-express)
+[Express Basic](#express-basic)
 
 ---
 
@@ -25,12 +25,17 @@
 - **Express** is a web Framework for node js.
 - Common js use `require` [Old Practice] where as module js use `import` [New Practice].
 - `.env` Keeps sensitive data out of your code, Easy to change configuration without touching code
+- CORS defines a way for the browser and the server to safely interact when they are on different origins (domain, port, or protocol).
+- A **proxy** acts as an intermediary between the client (frontend) and the server (backend). It forwards requests from one domain or port to another — especially useful in development environments to handle **CORS** and keep things clean.
+- To avoid **CORS** issue either use **Proxy** or do **Whitelisting** in the server (backend).
+- First of all think of what screens we have to display and what feilds we need to store in DataBase.
+- First think of Register and what feilds you want to enter.
 
 ### Setting Project
 
 - The `start` script in the package.json file is used to run a particular file, typically to launch the application.
 
-### About Express
+### Express Basic
 
 ```JS
 const express = require('express')
