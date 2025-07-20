@@ -30,6 +30,9 @@
 - To avoid **CORS** issue either use **Proxy** or do **Whitelisting** in the server (backend).
 - First of all think of what screens we have to display and what feilds we need to store in DataBase.
 - First think of Register and what feilds you want to enter.
+- Always wrap Code of Mongodb connection code in the try-catch.
+- Database is always in another continent so to communicate with DB takes time, always wrap the code in async - await.
+- Professionally always start iffe with semicolon.
 
 ### Setting Project
 
