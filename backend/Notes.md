@@ -8,6 +8,8 @@
 
 [Express Basic](#express-basic)
 
+[MiddleWares](#middlewares)
+
 ---
 
 ### Backend Basics
@@ -60,4 +62,55 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
+```
+
+```JS
+// Enable CORS (Cross-Origin Resource Sharing)
+// Allows requests from the specified origin (useful for frontend-backend communication)
+// 'credentials: true' allows cookies and authentication headers to be sent with requests
+app.use(cors({
+  origin: process.env.CORS_ORIGIN, 
+  credentials: true
+}));
+
+// Parse incoming JSON requests with a payload size limit of 16kb
+app.use(express.json({
+  limit: "16kb"
+}));
+
+// Parse incoming URL-encoded requests (e.g., form submissions) with a size limit
+app.use(express.urlencoded({
+  extended: true, // Allows for rich objects and arrays to be encoded into the URL-encoded format
+  limit: "16kb"
+}));
+
+// Serve static files from the "public" directory
+// e.g., images, CSS files, client-side JavaScript
+app.use(express.static("public"));
+
+// Parse cookies attached to client requests
+app.use(cookieParser()); 
+```
+
+### MiddleWares
+
+1. In Express.js, middleware refers to functions that have access to:
+    - The request object (req)
+    - The response object (res)
+    - The next middleware function in the application’s request-response cycle
+  
+2. Middleware functions can:
+    - Execute any code
+    - Modify the req and res objects
+    - End the request-response cycle
+    - Call the next middleware in the stack (next())
+
+- Middlewares generally have syntax `app.use`.
+- Middlewares have 4 parameters `(err,req,res,next)`
+
+```JS
+app.use((req, res, next) => {
+  console.log('Request URL:', req.url);
+  next(); // Pass control to the next middleware
+});
 ```
