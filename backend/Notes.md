@@ -10,6 +10,8 @@
 
 [MiddleWares](#middlewares)
 
+[Models](#models)
+
 ---
 
 ### Backend Basics
@@ -35,6 +37,7 @@
 - Always wrap Code of Mongodb connection code in the try-catch.
 - Database is always in another continent so to communicate with DB takes time, always wrap the code in async - await.
 - Professionally always start iffe with semicolon.
+- The asyncHandler utility is a higher-order function that wraps async route handlers and catches any errors, so you don’t need to write try/catch in every single route.
 
 ### Setting Project
 
@@ -114,3 +117,37 @@ app.use((req, res, next) => {
   next(); // Pass control to the next middleware
 });
 ```
+
+### Models
+
+- MongoDB generates unique IDs for each data in BSON format, not JSON format.
+
+  ```JS
+    {
+      "_id": ObjectId("60d21b4667d0d8992e610c85"),
+      "name": "ShuklaJI"
+    }
+  ```
+
+- In Mongoose, Model Names Are Singular, but Collections Are Pluralized
+- If you want searching efficient make `index: true` in Models object.
+- `Pre hooks` (also called middleware) are functions you can run before certain operations in Mongoose.
+- They allow you to intercept and modify data or logic before something like a document is saved, validated, removed, or a query is run.
+
+  ```JS
+      schema.pre('<operation>', function (next) {
+      // your logic
+      next(); // move on to the actual operation
+    });
+  ```
+
+- Mongoose instance methods (also called document methods) let you define custom functions on your schema that are available on individual documents.
+
+    ```JS
+      schema.methods.methodName = function () {
+        // `this` refers to the document
+      };
+    ```
+
+- `JWT` is a bearer token:
+  - Anyone who presents (bears) the token is considered authenticated — as long as the token is valid (not expired and correctly signed).
