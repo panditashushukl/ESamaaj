@@ -12,6 +12,8 @@
 
 [Models](#models)
 
+[HTTP](#http)
+
 ---
 
 ### Backend Basics
@@ -118,6 +120,8 @@ app.use((req, res, next) => {
 });
 ```
 
+- Multer is a middleware for Node.js that simplifies the handling of file uploads in web applications, particularly when using Express.js.
+
 ### Models
 
 - MongoDB generates unique IDs for each data in BSON format, not JSON format.
@@ -151,3 +155,35 @@ app.use((req, res, next) => {
 
 - `JWT` is a bearer token:
   - Anyone who presents (bears) the token is considered authenticated — as long as the token is valid (not expired and correctly signed).
+
+### HTTP
+
+- **HyperText Transfer Protocol (HTTP)** is a protocol that governs how clients and servers communicate over the web.
+- HTTP headers are metadata that are key value pairs sent along with request and response.
+- http headers do:
+  - caching
+  - authentication
+  - manage state
+- Request headers (from clients), Response Headers(from server), Representation headers(encoding/decoding), Payload headers (data).
+- Most Common Headers:
+  - Accept : application/json
+  - User-Agent
+  - Authorization
+  - Content-type
+  - Cookie
+  - Cache-Control
+- HTTP methods
+  - GET : Retrieve a resource
+  - HEAD : No message body (response headers only)
+  - OPTIONS : What Operations are available.
+  - TRACE : loopback test (get some data)
+  - DELETE : remove a resource
+  - PUT : replace a resource
+  - POST : interact with resource (mostly add)
+  - PATCH : chamge a part of resource
+- HTTP Status Code:
+  - 1** : Informational
+  - 2** : Success
+  - 3** : Redirection
+  - 4** : Client Error
+  - 5** : Server Error
