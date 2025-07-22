@@ -16,6 +16,8 @@
 
 [Contollers](#controllers)
 
+[Steps to register User](#steps-to-register-user)
+
 ---
 
 ### Backend Basics
@@ -191,3 +193,34 @@ app.use((req, res, next) => {
   - 5** : Server Error
 
 ### Controllers
+
+```scss
+React (Frontend)
+   ↓
+Express Routes (Backend API Endpoint)
+   ↓
+Controllers (Handle Logic)
+   ↓
+Models (MongoDB via Mongoose)
+   ↓
+MongoDB (Database)
+
+```
+
+- Responsibilities of a Controller
+  - Handle incoming requests from the client
+  - Call model functions to interact with the database
+  - Process any business logic
+  - Return a response (success, error, data, etc.)
+
+### Steps to register User
+
+  1. Get user details from frontend.
+  2. Validation - not empty
+  3. Check if user already exists : username and email.
+  4. Check for images and Check for Avtar
+  5. Upload on cloudinary
+  6. Create user object - create entry in DB
+  7. Remove password and refresh token feild from response.
+  8. Check for user creation
+  9. Return Response else return error
