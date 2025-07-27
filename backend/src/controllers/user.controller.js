@@ -40,7 +40,7 @@ const registerUser = asyncHandler(
     }
 
 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
       $or: [{ username }, { email }]
     })
 
@@ -49,14 +49,19 @@ const registerUser = asyncHandler(
     }
 
     const avtarLocalPath = req.files?.avtar[0]?.path
-    const coverImageLocalPath = req.files?.coverImage[0]?.path
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path
+
+    let coverImagelocalFilePath
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage[0].path) {
+      coverImagelocalFilePath = req.files.coverImage[0].path
+    }
 
     if (!avtarLocalPath) {
       throw new ApiError(400, "Avtar file is required")
     }
 
     const avtar = await uploadOnCloudinary(avtarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    const coverImage = await uploadOnCloudinary(coverImagelocalFilePath)
 
     if (!avtar){
       throw new ApiError(400, "Avatar file is corrupted or not uploaded")
