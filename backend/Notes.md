@@ -18,6 +18,8 @@
 
 [Steps to register User](#steps-to-register-user)
 
+[Steps to Login User](#steps-to-login-user)
+
 ---
 
 ### Backend Basics
@@ -224,3 +226,12 @@ MongoDB (Database)
   7. Remove password and refresh token feild from response.
   8. Check for user creation
   9. Return Response else return error
+
+### Steps to Login User
+
+  1. Take response from the frontend
+  2. Check username or email exist in Database
+  3. if username exist match the password
+  4. if Password matches login the user else through error
+  5. enerate access and refresh Token
+  6. Send secure cookies
