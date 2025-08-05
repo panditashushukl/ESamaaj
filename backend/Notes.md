@@ -20,6 +20,10 @@
 
 [Steps to Login User](#steps-to-login-user)
 
+[JWT Tokens](#jwt-tokens)
+
+[Aggregation Pipelines](https://www.mongodb.com/docs/manual/aggregation/)
+
 ---
 
 ### Backend Basics
@@ -46,6 +50,9 @@
 - Database is always in another continent so to communicate with DB takes time, always wrap the code in async - await.
 - Professionally always start iffe with semicolon.
 - The asyncHandler utility is a higher-order function that wraps async route handlers and catches any errors, so you don’t need to write try/catch in every single route.
+- When user, Subscribe a channel a new document got created.
+- When we need to find subscriber count we need to find how many document contains the channel name.
+- When we need to find subscribed count we need to find how many document contains the user(subscriber) name.
 
 ### Setting Project
 
@@ -235,3 +242,31 @@ MongoDB (Database)
   4. if Password matches login the user else through error
   5. enerate access and refresh Token
   6. Send secure cookies
+
+### JWT Tokens
+
+- JWT (JSON Web Tokens) are a way to securely handle user authentication in modern web applications. They allow us to identify who the user is without asking them to log in again and again
+- Tokens are generally of two types:
+  1. Access Token
+      - Purpose: Used to verify the identity of the user while making requests.
+      - Lifetime: Short-lived (usually a few minutes).
+      - Storage: Stored only on the client side (like browser memory or cookies).
+      - Usage: Sent with every API request (usually in headers) to prove the user is authenticated.
+  2. Refresh Token
+      - Purpose: Used to get a new access token when the old one expires.
+      - Lifetime: Long-lived (can be days or even weeks).
+      - Storage: Stored on both client side and server side.
+      - Usage: Sent when the access token expires, so a new access token can be issued without logging in again.
+- How It Works in a Real App:
+  1. User logs in → Server verifies credentials.
+  2. Server sends:
+      - An access token (short-lived)
+      - A refresh token (long-lived)
+  3. On each request:
+      - Client sends access token to access protected routes.
+  4. If the access token expires:
+      - Client sends refresh token to server.
+      - Server verifies it and returns a new access token.
+  5. If the refresh token is also invalid/expired, the user must log in again.
+
+### Aggregation Pipelines
