@@ -6,20 +6,27 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose"
 
-const generateAccessAndRefreshTokens = async (userId) =>{
+const generateAccessAndRefreshTokens = async (userId) => {
   try {
-    const user = await User.findById(userId)
-    const accessToken = user.generateAccessToken()
-    const refreshToken = user.generateRefreshToken()
-    
-    user.refreshToken = refreshToken
-    await user.save({validateBeforeSave: false})
+    const user = await User.findById(userId);
 
-    return {accessToken,refreshToken}
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false })
+
+    return { accessToken, refreshToken }
   } catch (error) {
-    throw new ApiError(500,"Something went wrong while while generating refresh and access token")
+    console.error("❌ Token generation error:", error);
+    throw new ApiError(500, "Something went wrong while generating tokens");
   }
-}
+};
+
 
 /*
   Steps to register User:
@@ -175,8 +182,8 @@ const loggedOutUser = asyncHandler(async (req,res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined
+      $unset: {
+        refreshToken: 1 //Removes feild from document
       }
     },
     {
@@ -199,6 +206,7 @@ const loggedOutUser = asyncHandler(async (req,res) => {
 
 const refreshAccessToken = asyncHandler(async (req, res)=>{
   try {
+    
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
   
     if (!incomingRefreshToken) {
@@ -210,12 +218,13 @@ const refreshAccessToken = asyncHandler(async (req, res)=>{
       process.env.REFRESH_TOKEN_SECRET
     )
   
-    const user = User.findById(decodedToken?._id)
-  
+    const user = await User.findById(decodedToken?._id)
+    
     if (!user) {
       throw new ApiError(401, "Invalid refresh Token");
     }
-  
+    
+    
     if (incomingRefreshToken!== user?.refreshToken) {
       throw new ApiError(401, "Refresh Token either expired or used");
     }
@@ -225,13 +234,12 @@ const refreshAccessToken = asyncHandler(async (req, res)=>{
       secure:true
     }
   
-    await generateAccessAndRefreshTokens(user._id)
-  
-  
+    const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshTokens(user._id);
+
     return res
     .status(200)
     .cookie("accessToken", accessToken,options)
-    .cookie("refreshToken", newrefreshToken,options)
+    .cookie("refreshToken", newRefreshToken,options)
     .json(
       new ApiResponse(
         200,
@@ -283,16 +291,17 @@ const updateAccountDetails = asyncHandler(async(req,res) => {
   const {fullName,email} = req.body
 
   if (!fullName && !email) {
-    throw new ApiError(400, "All feilds are required")
+    throw new ApiError(400, "At least one field (fullName or email) must be provided");
   }
 
-  const user = User.findByIdAndUpdate(
+  const updateData = {};
+  if (fullName) updateData.fullName = fullName;
+  if (email) updateData.email = email;
+
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
-      $set: {
-        fullName,
-        email,
-      }
+      $set: updateData
     },
     {new:true}
   ).select("-password")
@@ -412,8 +421,8 @@ const getUserCurrentProfile = asyncHandler(async (req,res) => {
           $size: "$subscribedTo"
         },
         isSubscribed: {
-          $condition:{
-            if: {$in: [req.user?._id, "subscribers.subscriber"]},
+          $cond:{
+            if: {$in: [req.user?._id, "$subscribers.subscriber"]},
             then:true,
             else:false
           }
@@ -440,7 +449,7 @@ const getUserCurrentProfile = asyncHandler(async (req,res) => {
 
   return res
   .status(200)
-  .json(ApiResponse(
+  .json(new ApiResponse(
     200,
     channel[0],
     "User Channel fetched Successfully"
@@ -451,7 +460,7 @@ const getWatchHistory = asyncHandler(async (req,res) => {
   const user = await User.aggregate([
     {
       $match: {
-        _id: mongoose.Types.ObjectId.createFromHexString(req.user._id)
+        _id: new mongoose.Types.ObjectId(req.user._id)
       }
     },
     {
@@ -463,6 +472,7 @@ const getWatchHistory = asyncHandler(async (req,res) => {
         pipeline: [
           {
             $lookup: {
+              from:"users",
               localField:"owner",
               foreignField: "_id",
               as: "owner",
@@ -479,21 +489,18 @@ const getWatchHistory = asyncHandler(async (req,res) => {
           },
           {
             $addFields:{
-              $first:"$owner"
+              owner: { $first: "$owner" }
             }
           }
         ]
       }
-    },
-    {
-
     }
   ])
 
   return res
   .status(200)
   .json(
-    new ApiError(
+    new ApiResponse(
       200,
       user[0].watchHistory,
       "Watch history fetched Successfully"
