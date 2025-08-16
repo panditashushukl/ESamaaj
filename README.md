@@ -1,6 +1,6 @@
-# MERN Stack Learning Guide: Building a YouTube Clone
+# MERN Stack Learning Guide: Building a YouTube + Twitter Clone
 
-Welcome to the comprehensive guide for building a YouTube clone using the MERN stack (MongoDB, Express.js, React.js, Node.js). This guide will walk you through the essential steps, resources, and best practices.
+Welcome to the comprehensive guide for building a YouTube + Twitter clone using the MERN stack (MongoDB, Express.js, React.js, Node.js). This guide will walk you through the essential steps, resources, and best practices.
 
 ---
 
@@ -16,7 +16,7 @@ Welcome to the comprehensive guide for building a YouTube clone using the MERN s
 8. **Video Upload & Streaming**
 9. **Comments & Likes**
 10. **Deployment**
-11. **Additional Resources**
+11. **Credits**
 
 ---
 
@@ -49,7 +49,7 @@ Welcome to the comprehensive guide for building a YouTube clone using the MERN s
 ## 4. Database Integration (MongoDB)
 
 - Install MongoDB locally or use Atlas.
-- Define Mongoose schemas for User, Video, Comment.
+- Define Mongoose schemas for User, Video, Comment, Tweet.
 - Connect Express to MongoDB.
 
 ---
@@ -102,7 +102,7 @@ Welcome to the comprehensive guide for building a YouTube clone using the MERN s
 
 ---
 
-## 11. Additional Resources
+## 11. Credits
 
 - [MERN Stack Documentation](https://www.mongodb.com/mern-stack)
 - [React Docs](https://react.dev/)
@@ -112,5 +112,3 @@ Welcome to the comprehensive guide for building a YouTube clone using the MERN s
 - [YouTube Chai and Code](https://www.youtube.com/@chaiaurcode)
 
 ---
-
-Happy coding! Build, learn, and share your YouTube clone.
