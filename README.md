@@ -1,6 +1,6 @@
-# MERN Stack Learning Guide: Building a YouTube + Twitter Clone
+# MERN Stack Learning Guide: Building a YouTube + Twitter
 
-Welcome to the comprehensive guide for building a YouTube + Twitter clone using the MERN stack (MongoDB, Express.js, React.js, Node.js). This guide will walk you through the essential steps, resources, and best practices.
+Welcome to the comprehensive guide for building a YouTube + Twitter using the MERN stack (MongoDB, Express.js, React.js, Node.js). This guide will walk you through the essential steps, resources, and best practices.
 
 ---
 
