@@ -270,3 +270,90 @@ MongoDB (Database)
   5. If the refresh token is also invalid/expired, the user must log in again.
 
 ### Aggregation Pipelines
+
+Aggregation pipelines are used to perform advanced data processing on MongoDB collections (counts, joins, projections, pagination, computed fields). Use them where queries + .populate() or multiple queries would be inefficient.
+
+Core guidelines
+
+- Match early: filter with $match as first stage to reduce dataset.
+- Project early: remove unused fields with $project to reduce memory.
+- Use indexes for fields used in $match/$sort.
+- Prefer $facet for combined data + metadata (pagination + total count).
+
+Common patterns with examples
+
+1) Count subscribers for a channel
+
+```js
+// subscriptions collection: { userId, channelId, createdAt }
+const pipeline = [
+  { $match: { channelId: ObjectId(channelId) } },
+  { $count: "subscriberCount" }
+];
+const [result] = await Subscription.aggregate(pipeline);
+const count = result ? result.subscriberCount : 0;
+```
+
+2) Subscribed count for a user
+
+```js
+const pipeline = [
+  { $match: { userId: ObjectId(userId) } },
+  { $count: "subscribedCount" }
+];
+```
+
+3) Populate-like lookup (get channel details with subscription)
+
+```js
+const pipeline = [
+  { $match: { userId: ObjectId(userId) } },
+  { $lookup: {
+      from: "channels",
+      localField: "channelId",
+      foreignField: "_id",
+      as: "channel"
+    }
+  },
+  { $unwind: "$channel" },
+  { $project: { channelId: 1, "channel.name": 1, "channel.avatar": 1 } }
+];
+const list = await Subscription.aggregate(pipeline);
+```
+
+4) Pagination + total in one query (useful for lists)
+
+```js
+const page = 1, limit = 10, skip = (page - 1) * limit;
+const pipeline = [
+  { $match: {/* filters */} },
+  { $sort: { createdAt: -1 } },
+  { $facet: {
+      data: [{ $skip: skip }, { $limit: limit }],
+      meta: [{ $count: "total" }]
+    }
+  }
+];
+const [{ data, meta }] = await Model.aggregate(pipeline);
+const total = meta[0] ? meta[0].total : 0;
+```
+
+5) Compute derived fields (e.g., like percentage)
+
+```js
+const pipeline = [
+  { $match: { _id: ObjectId(postId) } },
+  { $project: {
+      likes: 1,
+      dislikes: 1,
+      likePercent: {
+        $cond: [
+          { $gt: [{ $add: ["$likes", "$dislikes"] }, 0] },
+          { $multiply: [{ $divide: ["$likes", { $add: ["$likes", "$dislikes"] }] }, 100] },
+          0
+        ]
+      }
+    }
+  }
+];
+```
