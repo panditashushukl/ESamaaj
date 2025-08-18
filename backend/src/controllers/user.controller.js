@@ -6,6 +6,12 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose"
 
+const options = {
+  httpOnly : true,
+  secure : true
+}
+  
+
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -150,11 +156,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
-  const options = {
-    httpOnly : true,
-    secure : true
-  }
-
   return res
   .status(200)
   .cookie("accessToken", accessToken, options)
@@ -191,11 +192,6 @@ const loggedOutUser = asyncHandler(async (req,res) => {
     }
   )
 
-  const options = {
-    httpOnly : true,
-    secure : true
-  }
-  
   return res
   .status(200)
   .clearCookie("accessToken", options)
@@ -227,11 +223,6 @@ const refreshAccessToken = asyncHandler(async (req, res)=>{
     
     if (incomingRefreshToken!== user?.refreshToken) {
       throw new ApiError(401, "Refresh Token either expired or used");
-    }
-  
-    const options = {
-      httpOnly:true,
-      secure:true
     }
   
     const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshTokens(user._id);

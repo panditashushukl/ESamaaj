@@ -3,13 +3,42 @@ import {Playlist} from "../models/playlist.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
+import { request } from "http"
 
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const {name, description} = req.body
+    const { name, description = "" } = req.body
+    if (!name) {
+        throw new ApiError(400, "Name is required")
+    }
+    
+    const userId = req.user?._id
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized")
+    }
 
-    //TODO: create playlist
+    try {
+        const playlist = await Playlist.create(
+            { 
+                name, 
+                description,
+                owner:userId
+            }
+        )
+
+        return res.status(201).json(
+            new ApiResponse(
+                201,
+                playlist,
+                "Playlist created Successfully."
+            )
+        )
+
+    } catch (error) {
+        throw new ApiError(500, "Failed to create playlist.")
+    }
 })
+
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
     const {userId} = req.params
