@@ -17,32 +17,53 @@ const createPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(401, "Unauthorized")
     }
 
-    try {
-        const playlist = await Playlist.create(
-            { 
-                name, 
-                description,
-                owner:userId
-            }
-        )
+    const playlist = await Playlist.create(
+        { 
+            name, 
+            description,
+            owner:userId
+        }
+    )
 
-        return res.status(201).json(
-            new ApiResponse(
-                201,
-                playlist,
-                "Playlist created Successfully."
-            )
+    return res.status(201).json(
+        new ApiResponse(
+            201,
+            playlist,
+            "Playlist created Successfully."
         )
-
-    } catch (error) {
-        throw new ApiError(500, "Failed to create playlist.")
-    }
+    )
 })
 
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
-    const {userId} = req.params
-    //TODO: get user playlists
+    const {username} = req.params
+    const userId = req.user?._id
+    console.log(username,req.user);
+    
+    if (username !== req.user?.username) {
+        throw new ApiError(
+            200,
+            "Username not matches to logged in User"
+        )
+    }
+    
+    if (!userId) {
+        throw new ApiError(401, "Unauthorized User to access Playlist");
+    }
+
+    const playlist = await Playlist.find({
+        owner:userId
+    }).lean()
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            playlist,
+            "Playlists fetched Successfully"
+        )
+    )
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
