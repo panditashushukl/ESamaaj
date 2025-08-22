@@ -285,9 +285,9 @@ const updateAccountDetails = asyncHandler(async(req,res) => {
     throw new ApiError(400, "At least one field (fullName or email) must be provided");
   }
 
-  const updateData = {};
-  if (fullName) updateData.fullName = fullName;
-  if (email) updateData.email = email;
+  const updateData = {}
+  if (fullName) updateData.fullName = fullName
+  if (email) updateData.email = email
 
   const user = await User.findByIdAndUpdate(
     req.user?._id,
