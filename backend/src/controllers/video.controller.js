@@ -86,7 +86,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
 */
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description = title} = req.body
-    // TODO: get video, upload to cloudinary, create video
 
     if (!title) {
         throw new ApiError(400, "Title of video is Mandatory")
@@ -138,22 +137,112 @@ const publishAVideo = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    //TODO: get video by id
+    
+    if (!videoId || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Video Id is required")
+    }
+
+    const video = await Video.findById(videoId)
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            video,
+            "Video fetched Successfully"
+        )
+    )
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    //TODO: update video details like title, description, thumbnail
+    const {title, description} = req.body
 
+    if (!videoId || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Video Id is required")
+    }
+
+    if (!title && !description) {
+        throw new ApiError(400,"Title or description is requred to update data")
+    }
+
+    const video = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $set: updateData
+        },
+        {new:true}
+    )
+
+    return res
+    .status(200
+    .json(
+        new ApiResponse(
+            200,
+            video,
+            "Video details updated SuccessFully"
+        )
+    )
+    )
 })
 
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    //TODO: delete video
+    
+    if (!videoId || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Video Id is required")
+    }
+    
+    await Video.findByIdAndDelete(videoId)
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            null,
+            "Video deleted Successfully"
+        )
+    )
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
+
+    if (!videoId || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Video Id is required")
+    }
+    
+    const video = await Video.findById(videoId)
+
+    let isPublished
+    if (video.isPublished) {
+        isPublished = false
+    }
+    else {
+        isPublished = true
+    }
+
+    const updatedVideo = await Video.findByIdAndUpdate(
+        videoId,
+        {
+            $set: {
+                isPublished
+            }
+        },
+        {new:true}
+    )
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            updatedVideo,
+            "Video Publish status updated Successfully"
+        )
+    )
 })
 
 export {
