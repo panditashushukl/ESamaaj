@@ -3,6 +3,7 @@ import {Playlist} from "../models/playlist.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
+import { User } from "../models/user.model.js"
 
 
 const createPlaylist = asyncHandler(async (req, res) => {
@@ -36,22 +37,19 @@ const createPlaylist = asyncHandler(async (req, res) => {
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
     const {username} = req.params
-    const userId = req.user?._id
-    console.log(username,req.user);
-    
-    if (username !== req.user?.username) {
+    const user = await User.findOne({
+        username
+    })
+        
+    if (!user?._id) {
         throw new ApiError(
-            200,
-            "Username not matches to logged in User"
+            400,
+            "Username not found"
         )
-    }
-    
-    if (!userId) {
-        throw new ApiError(401, "Unauthorized User to access Playlist");
     }
 
     const playlist = await Playlist.find({
-        owner:userId
+        owner:user._id
     }).lean()
 
     return res
