@@ -1,4 +1,4 @@
-import mongoose, {isValidObjectId} from "mongoose"
+import {isValidObjectId} from "mongoose"
 import {Video} from "../models/video.model.js"
 import {User} from "../models/user.model.js"
 import {ApiError} from "../utils/ApiError.js"
@@ -51,6 +51,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     }
 
     const totalVideos = await Video.countDocuments(filter)
+    const totalPages = Math.ceil(totalVideos / limitNum)
 
     const videos = await Video.find(filter)
         .sort(sortOptions)
@@ -62,7 +63,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
             200,
             {
                 currentPage: pageNum,
-                totalPages: Math.ceil(totalVideos / limitNum),
+                totalPages,
                 totalVideos,
                 videos,
                 hasNextPage: pageNum < totalPages,
@@ -72,7 +73,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
         )
     )
 })
-
 
 /*
     Steps to Publish a Video:
@@ -102,9 +102,12 @@ const publishAVideo = asyncHandler(async (req, res) => {
     if (!thumbnailLocalPath || !videoFileLocalPath) {
         throw new ApiError(400, "Thumbnail and Avatar file is required")
     }
-
+    
     const videoFile = await uploadOnCloudinary(videoFileLocalPath)
     const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+
+    if (!videoFile.url) throw new ApiError(500,"Something went wrong while uploading thumbnail")
+    if (!thumbnail.url) throw new ApiError(500,"Something went wrong while uploading thumbnail")
 
     let duration = videoFile?.duration
     const publicId = videoFile?.public_id || videoFile?.publicId
@@ -117,8 +120,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const video = new Video({
         title,
         description,
-        videoFile,
-        thumbnail,
+        videoFile : videoFile.url,
+        thumbnail : thumbnail.url,
         owner,
         duration
     })
@@ -163,9 +166,21 @@ const updateVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Video Id is required")
     }
 
-    if (!title && !description) {
-        throw new ApiError(400,"Title or description is requred to update data")
+    const thumbnailLocalPath = req.file?.path
+    
+    if (!title && !description && !thumbnailLocalPath) {
+        throw new ApiError(400,"Title or description or thubnail is required is requred to update data")
     }
+
+    let thumbnail
+    if (thumbnailLocalPath) {
+        thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+        if (!thumbnail.url) throw new ApiError(500,"Something went wrong while uploading thumbnail")
+    }
+    const updateData = {}
+    if (title) updateData.title = title
+    if (description) updateData.description = description
+    if (thumbnail) updateData.thumbnail = thumbnail.url
 
     const video = await Video.findByIdAndUpdate(
         videoId,
@@ -176,14 +191,13 @@ const updateVideo = asyncHandler(async (req, res) => {
     )
 
     return res
-    .status(200
+    .status(200)
     .json(
         new ApiResponse(
             200,
             video,
             "Video details updated SuccessFully"
         )
-    )
     )
 })
 
