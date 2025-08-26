@@ -85,7 +85,7 @@ const updateTweet = asyncHandler(async (req, res) => {
     const {content} = req.body
     const contentImages = req.files?.contentImages || []
     const owner = req.user?._id
-
+    
     if (!tweetId || !isValidObjectId(tweetId)) {
         throw new ApiError(400, "Please Enter a valid tweet Id")
     }
@@ -95,11 +95,12 @@ const updateTweet = asyncHandler(async (req, res) => {
     if (!owner) {
         throw new ApiError(400, "Please login to update tweet")
     }
-    const tweet = await findById(tweetId)
+    const tweet = await Tweet.findById(tweetId)
     if (!tweet) {
         throw new ApiError(400, "Tweet not found")
     }
-    if (owner !== tweet.owner) {
+
+    if (owner.toString() !== tweet.owner.toString()) {
         throw new ApiError ("You are not authorise to Update the tweet")
     }
     let imageUrls = []
@@ -115,10 +116,10 @@ const updateTweet = asyncHandler(async (req, res) => {
             }
         }
     }
-
+    
     const updateData = {}
     if (content) updateData.content = content
-    if (imageUrls) updateData.imageUrls = imageUrls
+    if (imageUrls) updateData.contentImages = imageUrls
 
     const updatedTweet = await Tweet.findByIdAndUpdate(
         tweetId,
@@ -139,23 +140,19 @@ const updateTweet = asyncHandler(async (req, res) => {
 
 const deleteTweet = asyncHandler(async (req, res) => {
     const {tweetId} = req.params
-    const {content} = req.body
     const owner = req.user?._id
 
     if (!tweetId || !isValidObjectId(tweetId)) {
         throw new ApiError(400, "Please Enter a valid tweet Id")
     }
-    if (!content) {
-        throw new ApiError(400, "Content is required")
-    }
     if (!owner) {
         throw new ApiError(400, "Please login to Delete tweet")
     }
-    const tweet = await findById(tweetId)
+    const tweet = await Tweet.findById(tweetId)
     if (!tweet) {
         throw new ApiError(400, "Tweet not found")
     }
-    if (owner !== tweet.owner) {
+    if (owner.toString() !== tweet.owner.toString()) {
         throw new ApiError ("You are not authorise to Delete the tweet")
     }
 
