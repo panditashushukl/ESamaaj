@@ -23,7 +23,16 @@ router.route("/").post(
 );
 router.route("/user/:username").get(getUserTweets);
 router.route("/:tweetId")
-    .patch(updateTweet)
+    .patch(
+        upload.fields(
+            [
+                {
+                    name: "contentImages",
+                    maxCount: 5,
+                },                
+            ]),
+        updateTweet
+    )
     .delete(deleteTweet);
 
 export default router

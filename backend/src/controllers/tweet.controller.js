@@ -81,11 +81,95 @@ const getUserTweets = asyncHandler(async (req, res) => {
 })
 
 const updateTweet = asyncHandler(async (req, res) => {
-    //TODO: update tweet
+    const {tweetId} = req.params
+    const {content} = req.body
+    const contentImages = req.files?.contentImages || []
+    const owner = req.user?._id
+
+    if (!tweetId || !isValidObjectId(tweetId)) {
+        throw new ApiError(400, "Please Enter a valid tweet Id")
+    }
+    if (!content) {
+        throw new ApiError(400, "Content is required")
+    }
+    if (!owner) {
+        throw new ApiError(400, "Please login to update tweet")
+    }
+    const tweet = await findById(tweetId)
+    if (!tweet) {
+        throw new ApiError(400, "Tweet not found")
+    }
+    if (owner !== tweet.owner) {
+        throw new ApiError ("You are not authorise to Update the tweet")
+    }
+    let imageUrls = []
+    if (Array.isArray(contentImages) && contentImages.length > 0) {
+        for (const file of contentImages) {
+            try {
+                const uploadedImage = await uploadOnCloudinary(file.path)
+                if (uploadedImage?.url) {
+                    imageUrls.push(uploadedImage.url)
+                }
+            } catch (err) {
+                throw new ApiError(500, err.message || "Error uploading image")
+            }
+        }
+    }
+
+    const updateData = {}
+    if (content) updateData.content = content
+    if (imageUrls) updateData.imageUrls = imageUrls
+
+    const updatedTweet = await Tweet.findByIdAndUpdate(
+        tweetId,
+        {$set : updateData},
+        {new:true}
+    )
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            updatedTweet,
+            "Tweet updated Successfully"
+        )
+    )
 })
 
 const deleteTweet = asyncHandler(async (req, res) => {
-    //TODO: delete tweet
+    const {tweetId} = req.params
+    const {content} = req.body
+    const owner = req.user?._id
+
+    if (!tweetId || !isValidObjectId(tweetId)) {
+        throw new ApiError(400, "Please Enter a valid tweet Id")
+    }
+    if (!content) {
+        throw new ApiError(400, "Content is required")
+    }
+    if (!owner) {
+        throw new ApiError(400, "Please login to Delete tweet")
+    }
+    const tweet = await findById(tweetId)
+    if (!tweet) {
+        throw new ApiError(400, "Tweet not found")
+    }
+    if (owner !== tweet.owner) {
+        throw new ApiError ("You are not authorise to Delete the tweet")
+    }
+
+    await Tweet.findByIdAndDelete(tweetId)
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            null,
+            "Tweet deleted Successfully"
+        )
+    )
 })
 
 export {
