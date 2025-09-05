@@ -1,29 +1,29 @@
-import mongoose, { isValidObjectId } from "mongoose"
+import { isValidObjectId } from "mongoose"
 import {Comment} from "../models/comment.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
 const getVideoComments = asyncHandler(async (req, res) => {
-    const { videoId } = req.params;
-    const { page = 1, limit = 10 } = req.query;
+    const { videoId } = req.params
+    const { page = 1, limit = 10 } = req.query
 
     if (!videoId || !isValidObjectId(videoId)) {
-        throw new ApiError(400, "Invalid video ID");
+        throw new ApiError(400, "Invalid video ID")
     }
 
-    const pageNumber = parseInt(page, 10);
-    const limitNumber = parseInt(limit, 10);
-    const skip = (pageNumber - 1) * limitNumber;
+    const pageNumber = parseInt(page, 10)
+    const limitNumber = parseInt(limit, 10)
+    const skip = (pageNumber - 1) * limitNumber
 
     const comments = await Comment.find({ video: videoId })
         .sort({ createdAt: -1 }) // latest comments first
         .skip(skip)
         .limit(limitNumber)
         .populate('user', 'username avatar') // assuming you want user info
-        .lean();
+        .lean()
 
-    const totalComments = await Comment.countDocuments({ video: videoId });
+    const totalComments = await Comment.countDocuments({ video: videoId })
 
     return res.status(200).json(
         new ApiResponse(
@@ -39,8 +39,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
             },
             "Comments fetched successfully"
         )
-    );
-});
+    )
+})
 
 
 const addComment = asyncHandler(async (req, res) => {
@@ -125,4 +125,4 @@ export {
     addComment, 
     updateComment,
     deleteComment
-    }
+}
