@@ -64,7 +64,6 @@ const getChannelSubscribers = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Please Provide ChannelUsername")
     }
     const channel = await User.findOne({username: channelUsername}).select("_id")
-    console.log(channel._id);
     
     if (!channel) {
         throw new ApiError(404, "Channel not Found")
