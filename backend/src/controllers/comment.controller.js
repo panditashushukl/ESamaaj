@@ -17,10 +17,10 @@ const getVideoComments = asyncHandler(async (req, res) => {
     const skip = (pageNumber - 1) * limitNumber
 
     const comments = await Comment.find({ video: videoId })
-        .sort({ createdAt: -1 }) // latest comments first
+        .sort({ createdAt: -1 }) 
         .skip(skip)
         .limit(limitNumber)
-        .populate('user', 'username avatar') // assuming you want user info
+        .populate('user', 'username avatar') 
         .lean()
 
     const totalComments = await Comment.countDocuments({ video: videoId })
