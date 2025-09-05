@@ -161,7 +161,7 @@ const getLikedTweets = asyncHandler(async (req, res) => {
     tweet: { $ne: null }
   }).populate('tweet')
 
-  const tweet = likedTweet.map(like => like.video)
+  const tweet = likedTweet.map(like => like.tweet)
 
   res.status(200).json({
     success: true,
