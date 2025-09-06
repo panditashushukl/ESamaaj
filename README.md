@@ -6,20 +6,20 @@ SamajikWorld is a MERN-stack learning project that combines YouTube-like video f
 
 ## Table of Contents
 
-1. Introduction
-2. Features
-3. Tech Stack
-4. Project Structure
-5. Getting Started (Windows)
-6. Backend
-7. Frontend
-8. Database
-9. Authentication & Authorization
-10. Media (Upload & Streaming)
-11. Realtime (Comments, Likes)
-12. Deployment
-13. Contributing
-14. Credits
+1. [Introduction](#1-introduction)
+2. [Features](#2-features)
+3. [Tech Stack](#3-tech-stack)
+4. [Project Structure](#5-getting-started-windows)
+5. [Getting Started](#5-getting-started-windows)
+6. [Backend](#6-backend)
+7. [Frontend](#7-frontend)
+8. [Database](#8-database)
+9. [Authentication & Authorization](#9-authentication--authorization)
+10. [Media (Upload & Streaming)](#10-media-upload--streaming)
+11. [Realtime (Comments, Likes)](#11-realtime-comments-likes)
+12. [Deployment](#12-deployment)
+13. [Contributing](#13-contributing)
+14. [Credits](#14-credits)
 
 ---
 
@@ -183,8 +183,10 @@ Example endpoints:
 ## 14. Credits
 
 - MERN tutorials and docs:
-  - [Chai aur Code](https://www.youtube.com/playlist?list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW)
+  - [Chai aur Code Backend](https://www.youtube.com/playlist?list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW)
   - [MongoDB](https://www.mongodb.com/mern-stack)
   - [React](https://react.dev/)
   - [ExpressJS](https://expressjs.com/)
   - [NodeJS](https://nodejs.org/)
+  - The models, routers (of comment, like, playlist, subscription, tweet, user, video), user controllers, db connection, middlewares, utilities are written with the help of channel [Chai aur Code](https://www.youtube.com/@chaiaurcode)
+  - Rest work is done by the developer.
