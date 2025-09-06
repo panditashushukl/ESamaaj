@@ -50,10 +50,13 @@ const generateAccessAndRefreshTokens = async (userId) => {
 const registerUser = asyncHandler(
   async (req,res) => {
     const {fullName,email,username,password} = req.body
+
     if (
-      [fullName,email,username,password].some((feild) => feild?.trim() === "")
+      [fullName, email, username, password].some(
+        (field) => String(field || "").trim() === ""
+      )
     ) {
-      throw new ApiError(400, "All feilds required")
+      throw new ApiError(400, "All fields are required");
     }
 
     if (!email.includes("@")) {
@@ -77,16 +80,17 @@ const registerUser = asyncHandler(
       throw new ApiError(409, "User with email or Username already exists")
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path
+    const avatarLocalPath = req.files?.avatar?.[0]?.path
+    
+    if (!avatarLocalPath) {
+      throw new ApiError(400, "avatar file is required")
+    }
+
     // const coverImageLocalPath = req.files?.coverImage[0]?.path
 
     let coverImagelocalFilePath
     if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage[0].path) {
       coverImagelocalFilePath = req.files.coverImage[0].path
-    }
-
-    if (!avatarLocalPath) {
-      throw new ApiError(400, "avatar file is required")
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath)
