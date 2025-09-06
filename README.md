@@ -1,114 +1,192 @@
-# MERN Stack Learning Guide: Building a YouTube + Twitter
+# SamajikWorld — MERN Social Video + Microblogging Platform
 
-Welcome to the comprehensive guide for building a YouTube + Twitter using the MERN stack (MongoDB, Express.js, React.js, Node.js). This guide will walk you through the essential steps, resources, and best practices.
+SamajikWorld is a MERN-stack learning project that combines YouTube-like video features with Twitter-like microblogging. This README outlines the project goals, structure, and how to get started on your Windows development machine.
 
 ---
 
 ## Table of Contents
 
-1. **Introduction to MERN Stack**
-2. **Project Setup**
-3. **Backend Development (Node.js & Express)**
-4. **Database Integration (MongoDB)**
-5. **Frontend Development (React)**
-6. **Connecting Frontend & Backend**
-7. **Authentication & Authorization**
-8. **Video Upload & Streaming**
-9. **Comments & Likes**
-10. **Deployment**
-11. **Credits**
+1. Introduction
+2. Features
+3. Tech Stack
+4. Project Structure
+5. Getting Started (Windows)
+6. Backend
+7. Frontend
+8. Database
+9. Authentication & Authorization
+10. Media (Upload & Streaming)
+11. Realtime (Comments, Likes)
+12. Deployment
+13. Contributing
+14. Credits
 
 ---
 
-## 1. Introduction to MERN Stack
+## 1. Introduction
 
-- **MongoDB:** NoSQL database for storing videos, users, comments.
-- **Express.js:** Web framework for Node.js to build REST APIs.
-- **React.js:** Frontend library for building user interfaces.
-- **Node.js:** JavaScript runtime for server-side development.
+SamajikWorld is a sample social platform for learning the MERN stack. It demonstrates building REST APIs, handling video uploads/streaming, user auth (JWT), micro-posts, comments, likes, and connecting a React frontend to an Express/MongoDB backend.
 
 ---
 
-## 2. Project Setup
+## 2. Features
 
-- Install Node.js and npm.
-- Initialize project folders: `/client` (React), `/server` (Node/Express).
-- Use `create-react-app` for frontend.
-- Use `npm init` for backend.
-
----
-
-## 3. Backend Development (Node.js & Express)
-
-- Set up Express server.
-- Create RESTful APIs for videos, users, comments.
-- Use middleware for error handling and logging.
+- User registration, login (JWT)
+- Video upload, stream, and playback
+- Micro-posts (tweets) with media support
+- Comments, likes, and basic follow/friend model
+- CRUD endpoints for users, videos, posts, comments
+- Real-time UI updates (optional WebSocket / polling)
+- Deployment-friendly configuration
 
 ---
 
-## 4. Database Integration (MongoDB)
+## 3. Tech Stack
 
-- Install MongoDB locally or use Atlas.
-- Define Mongoose schemas for User, Video, Comment, Tweet.
-- Connect Express to MongoDB.
-
----
-
-## 5. Frontend Development (React)
-
-- Build components: Home, Video Player, Upload, Login/Register.
-- Use React Router for navigation.
-- Style with CSS or libraries like Material-UI.
+- MongoDB (Mongoose)
+- Express.js
+- Node.js
+- React.js (Vite or Create React App)
+- Multer for file uploads
+- JWT for auth
+- Optional: Socket.IO for realtime features
 
 ---
 
-## 6. Connecting Frontend & Backend
+## 4. Project Structure
 
-- Use Axios or Fetch API for HTTP requests.
-- Handle CORS in Express.
-- Display data from backend in React components.
+Recommended layout:
 
----
-
-## 7. Authentication & Authorization
-
-- Implement JWT-based authentication.
-- Protect routes for uploading and commenting.
-- Store tokens securely.
+- /client — React frontend
+- /server — Express backend (APIs, auth, uploads)
+- /uploads or cloud storage — stored media (S3, Google Cloud, etc.)
+- /scripts — dev helpers (optional)
+- README.md — this file
 
 ---
 
-## 8. Video Upload & Streaming
+## 5. Getting Started (Windows)
 
-- Use Multer for handling file uploads in Express.
-- Store videos in filesystem or cloud storage.
-- Stream videos using appropriate endpoints.
+Prerequisites: Node.js (LTS) and npm, MongoDB (local or Atlas).
+
+Open PowerShell or CMD in the repository root and run:
+
+PowerShell / CMD:
+
+```powershell
+cd d:\SamajikWorld\server
+npm install
+cd ..\client
+npm install
+```
+
+Environment files:
+
+- server/.env (example)
+
+```txt
+PORT=5000
+MONGO_URI=<your-mongo-uri>
+JWT_SECRET=<your-secret>
+UPLOAD_DIR=./uploads
+```
+
+Run development servers (example scripts):
+
+- In two terminals:
+
+```powershell
+# Terminal 1 - backend
+cd d:\SamajikWorld\server
+npm run dev
+
+# Terminal 2 - frontend
+cd d:\SamajikWorld\client
+npm start
+```txt
+Or use a root script (if configured) like `npm run dev` to run both with concurrently.
 
 ---
 
-## 9. Comments & Likes
+## 6. Backend
 
-- Create endpoints for posting and fetching comments.
-- Implement like/dislike functionality.
-- Update UI in real-time.
+- Express REST API with routes for /auth, /users, /videos, /posts, /comments, /likes
+- Use Mongoose models (User, Video, Post, Comment)
+- Middleware: error handler, auth middleware (JWT), CORS, logging (morgan)
+
+Example endpoints:
+
+- POST /api/auth/register
+- POST /api/auth/login
+- GET /api/videos/:id/stream
+- POST /api/videos/upload
+- POST /api/posts
+- GET /api/posts/feed
+
+---
+
+## 7. Frontend
+
+- React app with pages: Home, Explore, VideoPlayer, Upload, Profile, Login/Register
+- React Router for navigation
+- Axios for API calls; store JWT in secure storage (httpOnly cookie recommended)
+- Components for timeline, video card, post composer, comments panel
 
 ---
 
-## 10. Deployment
+## 8. Database
 
-- Deploy backend to services like Heroku or Render.
-- Deploy frontend to Netlify or Vercel.
-- Set environment variables for production.
+- Mongoose schemas for User, Video, Post, Comment, Like
+- Index commonly queried fields (userId, createdAt, tags)
+- Consider using GridFS or cloud object storage for large media
+
+---
+
+## 9. Authentication & Authorization
+
+- JWT-based auth for APIs
+- Protected routes for upload, comment, like actions
+- Role checks (optional): admin, moderator, user
 
 ---
 
-## 11. Credits
+## 10. Media (Upload & Streaming)
 
-- [MERN Stack Documentation](https://www.mongodb.com/mern-stack)
-- [React Docs](https://react.dev/)
-- [Express Docs](https://expressjs.com/)
-- [Node.js Docs](https://nodejs.org/)
-- [YouTube API Reference](https://developers.google.com/youtube/v3)
-- [YouTube Chai and Code](https://www.youtube.com/@chaiaurcode)
+- Use Multer for multipart uploads (server)
+- Store files in local uploads folder for dev or S3/GCS for production
+- Stream video via ranged responses (support HTTP range headers)
 
 ---
+
+## 11. Realtime (Comments, Likes)
+
+- Optional Socket.IO integration for live comments/likes
+- Alternatively use optimistic UI updates and polling
+
+---
+
+## 12. Deployment
+
+- Backend: Heroku, Render, Railway, or VPS
+- Frontend: Vercel or Netlify
+- Use environment variables for secrets and DB connection
+- Serve prebuilt frontend from the backend in production if desired
+
+---
+
+## 13. Contributing
+
+- Fork, create feature branch, open PR
+- Add unit tests for backend routes and frontend components
+- Keep commits focused and documented
+
+---
+
+## 14. Credits
+
+- MERN tutorials and docs:
+  - [Chai aur Code](https://www.youtube.com/playlist?list=PLu71SKxNbfoBGh_8p_NS-ZAh6v7HhYqHW)
+  - [MongoDB](https://www.mongodb.com/mern-stack)
+  - [React](https://react.dev/)
+  - [ExpressJS](https://expressjs.com/)
+  - [NodeJS](https://nodejs.org/)
