@@ -49,7 +49,6 @@ SamajikWorld is a sample social platform for learning the MERN stack. It demonst
 - React.js (Vite or Create React App)
 - Multer for file uploads
 - JWT for auth
-- Optional: Socket.IO for realtime features
 
 ---
 
@@ -57,10 +56,8 @@ SamajikWorld is a sample social platform for learning the MERN stack. It demonst
 
 Recommended layout:
 
-- /client — React frontend
-- /server — Express backend (APIs, auth, uploads)
-- /uploads or cloud storage — stored media (S3, Google Cloud, etc.)
-- /scripts — dev helpers (optional)
+- /frontend — React frontend
+- /backend — Express backend (APIs, auth, uploads)
 - README.md — this file
 
 ---
@@ -74,9 +71,9 @@ Open PowerShell or CMD in the repository root and run:
 PowerShell / CMD:
 
 ```powershell
-cd d:\SamajikWorld\server
+cd d:\SamajikWorld\backend
 npm install
-cd ..\client
+cd ..\frontend
 npm install
 ```
 
@@ -97,13 +94,14 @@ Run development servers (example scripts):
 
 ```powershell
 # Terminal 1 - backend
-cd d:\SamajikWorld\server
+cd d:\SamajikWorld\backend
 npm run dev
 
 # Terminal 2 - frontend
-cd d:\SamajikWorld\client
-npm start
-```txt
+cd d:\SamajikWorld\frontend
+npm run dev
+```
+
 Or use a root script (if configured) like `npm run dev` to run both with concurrently.
 
 ---
