@@ -30,12 +30,16 @@ const getAllVideos = asyncHandler(async (req, res) => {
 
     if (query) {
         filter.title = { $regex: query, $options: 'i' } 
+        filter.isPublished = true
     }
 
-    if (username) {
+    else if (username) {
         const user = await User.findOne({ username })
         if (!user) {
             throw new ApiError(404, "User not found")
+        }
+        if (user._id.toString()!==req.user._id.toString()) {
+            filter.isPublished = true
         }
         filter.owner = user._id
     }
@@ -53,10 +57,56 @@ const getAllVideos = asyncHandler(async (req, res) => {
     const totalVideos = await Video.countDocuments(filter)
     const totalPages = Math.ceil(totalVideos / limitNum)
 
-    const videos = await Video.find(filter)
-        .sort(sortOptions)
-        .skip(skip)
-        .limit(limitNum)
+    const pipeline = [
+        {
+            $match: filter
+        },
+        {
+            $lookup:{
+                from:"users",
+                localField:"owner",
+                foreignField:"_id",
+                as: "ownerDetails"
+            }
+        },
+        {
+            $unwind: {
+                path: "$ownerDetails",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                videoFile: 1,
+                title: 1,
+                description: 1,
+                thumbnail: 1,
+                duration: 1,
+                views: 1,
+                isPublished: 1,
+                createdAt: 1,
+                likes: 1,
+                owner: {
+                    _id: "$ownerDetails._id",
+                    fullName: "$ownerDetails.fullName",
+                    username: "$ownerDetails.username",
+                    avatar: "$ownerDetails.avatar"
+                }
+            }
+        },
+        {
+            $sort: sortOptions
+        },
+        {
+            $skip: skip
+        },
+        {
+            $limit: limitNum
+        }
+    ]
+
+    const videos = await Video.aggregate(pipeline)
 
     res.status(200).json(
         new ApiResponse(
@@ -86,9 +136,13 @@ const getAllVideos = asyncHandler(async (req, res) => {
 */
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description = title} = req.body
-
+    
     if (!title) {
         throw new ApiError(400, "Title of video is Mandatory")
+    }
+
+    if (!description) {
+        throw new ApiError(400, "Description can't be empty")
     }
 
     const owner = req.user?._id
@@ -96,8 +150,8 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(400, "You are not authorise to upload a video")
     }
 
-    const videoFileLocalPath = req.files?.videoFile[0]?.path
-    const thumbnailLocalPath = req.files?.thumbnail[0]?.path
+    const videoFileLocalPath = req.files?.videoFile?.[0]?.path
+    const thumbnailLocalPath = req.files?.thumbnail?.[0]?.path
 
     if (!thumbnailLocalPath || !videoFileLocalPath) {
         throw new ApiError(400, "Thumbnail and Avatar file is required")
@@ -145,7 +199,46 @@ const getVideoById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Video Id is required")
     }
 
-    const video = await Video.findById(videoId)
+    const videoAggregation = await Video.aggregate([
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField:"_id",
+                as: "ownerDetails"
+            }
+        },
+        {
+            $unwind: {
+                path: "$ownerDetails",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $project:{
+                _id: 1,
+                videoFile: 1,
+                title: 1,
+                description: 1,
+                thumbnail: 1,
+                duration: 1,
+                views: 1,
+                isPublished: 1,
+                owner: {
+                    _id: "$ownerDetails._id",
+                    fullName: "$ownerDetails.fullName",
+                    username: "$ownerDetails.username",
+                    avatar: "$ownerDetails.avatar"
+                }
+            }
+        }
+    ])
+
+    const video = videoAggregation[0]
+
+    if (!video) {
+        throw new ApiError(404, "Video not found")
+    }
 
     return res
     .status(200)
