@@ -65,7 +65,6 @@ const getChannelStats = asyncHandler(async (req, res) => {
     );
 })
 
-
 const getChannelVideos = asyncHandler(async (req, res) => {
     const {channelUsername} = req.params
 
@@ -85,12 +84,24 @@ const getChannelVideos = asyncHandler(async (req, res) => {
         owner:user._id
     })
 
+    const userSummary = {
+        _id: user._id,
+        fullName: user.fullName,
+        username: user.username,
+        avatar: user.avatar
+    }
+
+    const mappedVideos = videos.map(video => ({
+        ...video.toObject(),
+        owner:userSummary
+    }))
+
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            videos,
+            mappedVideos,
             "Videos fetched Successfully"
         )
     )

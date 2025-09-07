@@ -33,13 +33,23 @@ const createTweet = asyncHandler(async (req, res) => {
         }
     }
     
-    const tweet = await Tweet.create(
+    const createdTweet = await Tweet.create(
         {
             content,
             owner,
             contentImages:imageUrls
         }
     )
+
+    const tweet = {
+        ...createdTweet.toObject(),
+        owner: {
+            _id: req.user._id,
+            fullName: req.user.fullName,
+            username: req.user.username,
+            avatar: req.user.avatar
+        }
+    }
     
     res
     .status(200)
@@ -69,12 +79,24 @@ const getUserTweets = asyncHandler(async (req, res) => {
         owner:user._id
     }).lean()
     
+    const userSummary = {
+        _id: user._id,
+        fullName: user.fullName,
+        username: user.username,
+        avatar: user.avatar
+    }
+
+    const mappedTweets = tweets.map(tweet => ({
+        ...tweet,
+        owner: userSummary
+    }))
+
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            tweets,
+            mappedTweets,
             "User Tweets fetched Successfully"
         )
     )
@@ -127,12 +149,22 @@ const updateTweet = asyncHandler(async (req, res) => {
         {new:true}
     )
 
+    const modifiedTweet = {
+        ...updatedTweet.toObject(),
+        owner: {
+            _id: req.user._id,
+            fullName: req.user.fullName,
+            username: req.user.username,
+            avatar: req.user.avatar
+        }
+    }
+
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            updatedTweet,
+            modifiedTweet,
             "Tweet updated Successfully"
         )
     )

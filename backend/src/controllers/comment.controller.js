@@ -21,7 +21,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
         .sort({ createdAt: -1 }) 
         .skip(skip)
         .limit(limitNumber)
-        .populate('owner', 'username avatar') 
+        .populate('owner', 'username avatar fullName _id') 
         .lean()
 
     const totalComments = await Comment.countDocuments({ video: videoId })
@@ -42,7 +42,6 @@ const getVideoComments = asyncHandler(async (req, res) => {
         )
     )
 })
-
 
 const addComment = asyncHandler(async (req, res) => {
     const {videoId} = req.params
@@ -69,6 +68,7 @@ const addComment = asyncHandler(async (req, res) => {
         owner: userId
     })
 
+    
     return res
     .status(200)
     .json(

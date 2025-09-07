@@ -1,5 +1,6 @@
-import {isValidObjectId} from "mongoose"
+import mongoose, {isValidObjectId} from "mongoose"
 import {Playlist} from "../models/playlist.model.js"
+import {Video} from "../models/video.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -34,7 +35,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
     )
 })
 
-
 const getUserPlaylists = asyncHandler(async (req, res) => {
     const {username} = req.params
     const user = await User.findOne({
@@ -48,16 +48,28 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
         )
     }
 
-    const playlist = await Playlist.find({
+    const playlists = await Playlist.find({
         owner:user._id
     }).lean()
+
+    const userSummary = {
+        _id: user._id,
+        fullName: user.fullName,
+        username: user.username,
+        avatar: user.avatar
+    };
+
+    const mappedPlaylists = playlists.map(tweet => ({
+        ...tweet,
+        owner: userSummary
+    }))
 
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            playlist,
+            mappedPlaylists,
             "Playlists fetched Successfully"
         )
     )
@@ -70,7 +82,64 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid Playlist ID")
     }
 
-    const playlist = await Playlist.findById(playlistId).lean()
+    const playlistAggregation = await Playlist.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(playlistId)
+            },
+        },
+        {
+            $lookup: {
+                from:"users",
+                localField:"owner",
+                foreignField: "_id",
+                as: "ownerDetails"                
+            }
+        },
+        {
+            $unwind: {
+                path: "$ownerDetails",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from:"videos",
+                localField:"videos",
+                foreignField: "_id",
+                as:"videoDetails"
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                name: 1,
+                description: 1,
+                createdAt: 1,
+                updatedAt: 1,
+                owner: {
+                    _id: "$ownerDetails._id",
+                    fullName: "$ownerDetails.fullName",
+                    username: "$ownerDetails.username",
+                    avatar: "$ownerDetails.avatar"
+                },
+                videos: {
+                    $map: {
+                        input: "$videoDetails",
+                        as: "video",
+                        in: {
+                            _id: "$$video._id",
+                            thumbnail: "$$video.thumbnail",
+                            title: "$$video.title",
+                            description: "$$video.description"
+                        }
+                    }
+                }
+            }
+        }
+    ])
+
+    const playlist = playlistAggregation[0]
 
     if (!playlist) {
         throw new ApiError(404, "Playlist not found")
@@ -99,6 +168,11 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
     if (!playlist) {
       throw new ApiError(404, "Playlist not found")
+    }
+
+    const video = await Video.findById(videoId)
+    if (!video) {
+        throw new ApiError(400, "Video not Found")
     }
 
     if (playlist.videos.includes(videoId)) {

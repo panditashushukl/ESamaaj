@@ -139,7 +139,13 @@ const getLikedVideos = asyncHandler(async (req, res) => {
   const likedVideos = await Like.find({
     likedBy: userId,
     video: { $ne: null }
-  }).populate('video')
+  }).populate({
+        path:"video",
+        populate: {
+            path:"owner",
+            select:"_id username fullName avatar"
+        }
+    })
 
   const videos = likedVideos.map(like => like.video);
 
@@ -159,8 +165,13 @@ const getLikedTweets = asyncHandler(async (req, res) => {
   const likedTweet = await Like.find({
     likedBy: userId,
     tweet: { $ne: null }
-  }).populate('tweet')
-
+  }).populate({
+        path:"tweet",
+        populate: {
+            path:"owner",
+            select:"_id username fullName avatar"
+        }
+    })
   const tweet = likedTweet.map(like => like.tweet)
 
   res.status(200).json({
