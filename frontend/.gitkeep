@@ -1,3 +1,0 @@
-# .gitkeep File Importance
-
-A `.gitkeep` file is used to ensure that otherwise empty directories are tracked by Git. Since Git does not track empty folders, adding a `.gitkeep` file allows you to include the directory structure in your repository. This is helpful for scaffolding projects or indicating that a directory is intentionally left empty for future use.
